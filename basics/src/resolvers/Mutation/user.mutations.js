@@ -14,7 +14,12 @@ export const createUser = (parent, { data }, { db: { users } }, info) => {
 export const updateUser = (parent, { id, data }, { db: { users } }, info) => {
   const userIndex = users.findIndex(u => u.id === id);
   if (userIndex < 0) {
-    throw new Error('User does not exist');
+    throw new Error('User does not exist.');
+  }
+
+  const emailTaken = users.some(u => u.email === data.email && u.id !== id);
+  if (emailTaken) {
+    throw new Error('Email taken.');
   }
 
   const user = { ...users[userIndex], ...data };
