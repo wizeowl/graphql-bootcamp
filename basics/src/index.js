@@ -16,6 +16,7 @@ const typeDefs = `
     createPost(data: CreatePostInput): Post!
     deletePost(id: ID!): Post!
     createComment(data: CreateCommentInput): Comment!
+    deleteComment(id: ID!): Comment!
   }
   
   input CreateUserInput {
@@ -244,6 +245,15 @@ const resolvers = {
       const comment = { id, ...data };
       comments.push(comment);
       console.log(comment);
+      return comment;
+    },
+    deleteComment(parent, { id }, ctx, info) {
+      const commentIndex = comments.findIndex(c => c.id === id);
+      if (commentIndex < 0) {
+        throw  new Error('comment does not exist');
+      }
+
+      const [comment] = comments.splice(commentIndex, 1);
       return comment;
     }
   }
