@@ -1,6 +1,6 @@
 import uuidv4 from "uuid/v4";
 
-export const createComment = (parent, { data }, { db: { users, posts, comments } }, info) => {
+export const createComment = (parent, { data }, { db: { users, posts, comments }, pubsub }, info) => {
   const userExists = users.some(u => u.id === data.author);
   if (!userExists) {
     throw new Error('User does not Exist');
@@ -12,6 +12,7 @@ export const createComment = (parent, { data }, { db: { users, posts, comments }
 
   const comment = { id: uuidv4(), ...data };
   comments.push(comment);
+  pubsub.publish(`comment ${data.post}`, { comment });
   return comment;
 };
 
