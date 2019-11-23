@@ -9,5 +9,10 @@ export const Subscription = {
 
       return pubsub.asyncIterator(`comment ${postId}`);
     }
+  },
+  post: {
+    subscribe(parent, args, { pubsub }) {
+      return pubsub.asyncIterator('post');
+    }
   }
 };
