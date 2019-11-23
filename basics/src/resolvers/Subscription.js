@@ -1,3 +1,7 @@
+export const CREATED = 'CREATED';
+export const UPDATED = 'UPDATED';
+export const DELETED = 'DELETED';
+
 export const Subscription = {
   comment: {
     subscribe(parent, { postId }, { db, pubsub }, info) {
