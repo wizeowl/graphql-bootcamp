@@ -61,12 +61,18 @@ type Post {
     comments: [Comment!]!
 }
 
+enum MutationType {
+    CREATED
+    UPDATED
+    DELETED
+}
+
 type PostSubscriptionPayload {
     data: Post!
-    mutation:String!
+    mutation: MutationType!
 }
 
 type CommentSubscriptionPayload {
     data: Comment!
-    mutation: String!
+    mutation: MutationType!
 }
