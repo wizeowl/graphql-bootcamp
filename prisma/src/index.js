@@ -7,7 +7,7 @@ import { Post } from "./resolvers/Post";
 import { Query } from "./resolvers/Query";
 import { Subscription } from "./resolvers/Subscription";
 import { User } from "./resolvers/User";
-import './prisma';
+import {prisma } from "./prisma";
 
 const pubsub = new PubSub();
 
@@ -23,7 +23,7 @@ const resolvers = {
 const server = new GraphQLServer({
   resolvers,
   typeDefs: './src/schema.graphql',
-  context: { db, pubsub }
+  context: { db, pubsub, prisma }
 });
 
 server.start(() => {
