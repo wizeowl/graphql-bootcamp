@@ -5,21 +5,12 @@ const prisma = new Prisma({
   endpoint: 'http://localhost:4466'
 });
 
-async function init() {
-  const post = await prisma.mutation.createPost({
-    data: {
-      title: "Powst!!",
-      body: "My body!!",
-      published: true,
-      author: { connect: { id: 'ck3edzesp001j0844yujh6w9p' } }
-    }
-  }, '{ id title body published }');
+const test = async () => {
+  const exists = await prisma.exists.User({ id: 'ck3edzesp001j0844yujh6w9p' });
+  console.log(exists);
+};
 
-  console.log(post);
+test();
 
-  const users = await prisma.query.users(null, '{ id name posts { id title body published} }');
+// hgl$fhsHG84d4
 
-  console.log(JSON.stringify(users, undefined, 2));
-}
-
-init();
