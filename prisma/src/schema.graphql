@@ -24,9 +24,9 @@ type Subscription {
     post: PostSubscriptionPayload!
 }
 
-input CreateUserInput { name: String!, email: String!, age: Int }
+input CreateUserInput { name: String!, email: String! }
 
-input UpdateUserInput { name: String, email: String, age: Int }
+input UpdateUserInput { name: String, email: String }
 
 input CreatePostInput { title: String!, body: String, published: Boolean, author: ID! }
 
