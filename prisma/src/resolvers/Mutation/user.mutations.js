@@ -1,9 +1,10 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { getUserId } from "../../utils";
 
 export const SECRET = 'mysecretniaaaahahahaha';
 
-export const createUser = async (parent, { data }, { prisma }, info) => {
+export const createUser = async (_, { data }, { prisma }, info) => {
   const { password } = data;
   if (password.length < 8) {
     throw new Error('Password must be 8 chars long you idiot');
@@ -16,11 +17,13 @@ export const createUser = async (parent, { data }, { prisma }, info) => {
   return { user, token: jwt.sign({ userId: user.id }, SECRET) };
 };
 
-export const updateUser = (parent, { id, data }, { prisma }, info) => {
+export const updateUser = (_, { data }, { prisma, request }, info) => {
+  const id = getUserId(request);
   return prisma.mutation.updateUser({ data, where: { id } }, info);
 };
 
-export const deleteUser = (parent, { id }, { prisma }, info) => {
+export const deleteUser = (_, args, { prisma, request }, info) => {
+  const id = getUserId(request);
   return prisma.mutation.deleteUser({ where: { id } }, info);
 };
 
