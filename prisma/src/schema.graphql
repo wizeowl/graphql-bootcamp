@@ -36,7 +36,7 @@ input UpdateUserInput { name: String, email: String }
 
 input LoginInput { password: String!, email: String! }
 
-input CreatePostInput { title: String!, body: String, published: Boolean, author: ID! }
+input CreatePostInput { title: String!, body: String, published: Boolean }
 
 input UpdatePostInput { title: String, body: String, published: Boolean }
 

@@ -1,5 +1,8 @@
-export const createPost = (parent, { data: { title, body, published, author } }, { prisma }, info) => {
-  const data = { title, body, published, author: { connect: { id: author } } };
+import { getUserId } from "../../utils";
+
+export const createPost = (parent, { data: { title, body, published } }, { prisma, request }, info) => {
+  const userId = getUserId(request);
+  const data = { title, body, published, author: { connect: { id: userId } } };
   return prisma.mutation.createPost({ data }, info);
 };
 

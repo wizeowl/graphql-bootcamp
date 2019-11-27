@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
-const SECRET = 'mysecretniaaaahahahaha';
+export const SECRET = 'mysecretniaaaahahahaha';
 
 export const createUser = async (parent, { data }, { prisma }, info) => {
   const { password } = data;
