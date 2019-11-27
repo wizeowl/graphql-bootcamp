@@ -39,7 +39,7 @@ input CreatePostInput { title: String!, body: String, published: Boolean }
 
 input UpdatePostInput { title: String, body: String, published: Boolean }
 
-input CreateCommentInput { text: String!, post: ID!, author: ID! }
+input CreateCommentInput { text: String!, post: ID! }
 
 input UpdateCommentInput { text: String }
 
