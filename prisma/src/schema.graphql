@@ -1,5 +1,4 @@
 type Query {
-    me: User!
     users(query: String): [User]
     posts(query: String): [Post]
     comments(query: String): [Comment]
