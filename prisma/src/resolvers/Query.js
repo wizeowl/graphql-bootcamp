@@ -1,4 +1,10 @@
+import { getUserId } from "../utils";
+
 export const Query = {
+  me(_, args, { prisma, request }, info) {
+    const id = getUserId(request);
+    return prisma.query.user({ where: { id } });
+  },
   users(parent, { query }, { prisma }, info) {
     const where = query && {
       where: { OR: [{ name_contains: query }, { email_contains: query }] }
