@@ -14,7 +14,7 @@ export const getUserId = ({ request, connection }, requireAuth = true) => {
     throw new Error('Authorization required');
   }
 
-  const token = authorization.replace('Bearer ', '');
+  const token = authToken.replace('Bearer ', '');
   const { userId } = jwt.verify(token, SECRET);
 
   return userId;
