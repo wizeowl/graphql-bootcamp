@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { SECRET } from "./resolvers/Mutation/user.mutations";
+import { SECRET } from "./generateToken";
 
 export const getUserId = ({ request, connection }, requireAuth = true) => {
   const authToken = request

@@ -1,4 +1,4 @@
-import { getUserId } from "../../utils";
+import { getUserId } from "../../utils/getUserId";
 
 export const createPost = (parent, { data: { title, body, published } }, { prisma, request }, info) => {
   const userId = getUserId(request);

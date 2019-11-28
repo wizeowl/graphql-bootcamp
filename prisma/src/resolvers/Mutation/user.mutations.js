@@ -1,8 +1,7 @@
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import { getUserId } from "../../utils";
 
-export const SECRET = 'mysecretniaaaahahahaha';
+import { generateToken } from "../../utils/generateToken";
+import { getUserId } from "../../utils/getUserId";
 
 export const createUser = async (_, { data }, { prisma }, info) => {
   const { password } = data;
@@ -14,7 +13,7 @@ export const createUser = async (_, { data }, { prisma }, info) => {
   const user = await prisma.mutation
     .createUser({ data: { ...data, password: hashedPassword } });
 
-  return { user, token: jwt.sign({ userId: user.id }, SECRET) };
+  return { user, token: generateToken(user) };
 };
 
 export const updateUser = (_, { data }, { prisma, request }, info) => {
@@ -40,5 +39,5 @@ export const login = async (parent, { data: { email, password } }, { prisma }, i
     throw new Error('User not found');
   }
 
-  return { user, token: jwt.sign({ userId: user.id }, SECRET) };
+  return { user, token: generateToken(user) };
 };

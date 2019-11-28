@@ -1,4 +1,4 @@
-import { getUserId } from "../../utils";
+import { getUserId } from "../../utils/getUserId";
 
 export const createComment = async (parent, { data: { text, post } }, { prisma, request }, info) => {
   const author = getUserId(request);
