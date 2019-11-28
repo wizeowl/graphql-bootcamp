@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 
-import { generateToken } from "../../utils/generateToken";
-import { getUserId } from "../../utils/getUserId";
+import { generateToken } from '../../utils/generateToken';
+import { getUserId } from '../../utils/getUserId';
 
 export const createUser = async (_, { data }, { prisma }, info) => {
   const { password } = data;
@@ -10,13 +10,19 @@ export const createUser = async (_, { data }, { prisma }, info) => {
   }
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const user = await prisma.mutation
-    .createUser({ data: { ...data, password: hashedPassword } });
+  const user = await prisma.mutation.createUser({
+    data: { ...data, password: hashedPassword }
+  });
 
   return { user, token: generateToken(user) };
 };
 
-export const updateUser = (_, { data }, { prisma, request }, info) => {
+export const updateUser = (
+  _,
+  { data },
+  { prisma, request },
+  info
+) => {
   const id = getUserId(request);
   return prisma.mutation.updateUser({ data, where: { id } }, info);
 };
@@ -26,7 +32,12 @@ export const deleteUser = (_, args, { prisma, request }, info) => {
   return prisma.mutation.deleteUser({ where: { id } }, info);
 };
 
-export const login = async (parent, { data: { email, password } }, { prisma }, info) => {
+export const login = async (
+  parent,
+  { data: { email, password } },
+  { prisma },
+  info
+) => {
   const user = await prisma.query.user({ where: { email } });
 
   if (!user) {

@@ -1,11 +1,10 @@
-import { getUserId } from "../utils/getUserId";
+import { getUserId } from '../utils/getUserId';
 
-const buildQuery = query => (query && {
-  OR: [
-    { title_contains: query },
-    { body_contains: query }
-  ]
-}) || {};
+const buildQuery = query =>
+  (query && {
+    OR: [{ title_contains: query }, { body_contains: query }]
+  }) ||
+  {};
 
 export const Query = {
   me(_, args, { prisma, request }, info) {
@@ -23,7 +22,7 @@ export const Query = {
     const id = getUserId(request);
 
     const opArgs = {
-      where: { author: { id }, ...(buildQuery(query)) }
+      where: { author: { id }, ...buildQuery(query) }
     };
 
     return prisma.query.posts(opArgs, info);
@@ -31,7 +30,8 @@ export const Query = {
   posts(parent, { query }, { prisma }, info) {
     const opArgs = {
       where: {
-        published: true, ...(buildQuery(query))
+        published: true,
+        ...buildQuery(query)
       }
     };
     return prisma.query.posts(opArgs, info);
@@ -42,10 +42,7 @@ export const Query = {
     const [post] = await prisma.query.posts({
       where: {
         id,
-        OR: [
-          { published: true },
-          { author: { id: userId } }
-        ]
+        OR: [{ published: true }, { author: { id: userId } }]
       }
     });
 

@@ -1,30 +1,61 @@
-import { getUserId } from "../../utils/getUserId";
+import { getUserId } from '../../utils/getUserId';
 
-export const createPost = (parent, { data: { title, body, published } }, { prisma, request }, info) => {
+export const createPost = (
+  parent,
+  { data: { title, body, published } },
+  { prisma, request },
+  info
+) => {
   const userId = getUserId(request);
-  const data = { title, body, published, author: { connect: { id: userId } } };
+  const data = {
+    title,
+    body,
+    published,
+    author: { connect: { id: userId } }
+  };
   return prisma.mutation.createPost({ data }, info);
 };
 
-export const updatePost = async (parent, { id, data }, { prisma, request }, info) => {
+export const updatePost = async (
+  parent,
+  { id, data },
+  { prisma, request },
+  info
+) => {
   const userId = getUserId(request);
 
-  const postExists = await prisma.exists.Post({ id, author: { id: userId } });
+  const postExists = await prisma.exists.Post({
+    id,
+    author: { id: userId }
+  });
   if (!postExists) {
     throw new Error('Post not found');
   }
 
-  const isPublished = await prisma.exists.Post({ id, published: true });
+  const isPublished = await prisma.exists.Post({
+    id,
+    published: true
+  });
   if (isPublished && !data.published) {
-    await prisma.mutation.deleteManyComments({ where: { post: { id: parent.id } } });
+    await prisma.mutation.deleteManyComments({
+      where: { post: { id: parent.id } }
+    });
   }
 
   return prisma.mutation.updatePost({ data, where: { id } }, info);
 };
 
-export const deletePost = async (parent, { id }, { prisma, request }, info) => {
+export const deletePost = async (
+  parent,
+  { id },
+  { prisma, request },
+  info
+) => {
   const userId = getUserId(request);
-  const postExists = await prisma.exists.Post({ id, author: { id: userId } });
+  const postExists = await prisma.exists.Post({
+    id,
+    author: { id: userId }
+  });
 
   if (!postExists) {
     throw new Error('Post not found');
