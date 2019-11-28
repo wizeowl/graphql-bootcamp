@@ -2,16 +2,13 @@ import bcrypt from 'bcryptjs';
 
 import { generateToken } from '../../utils/generateToken';
 import { getUserId } from '../../utils/getUserId';
+import { validateAndHashPassword } from '../../utils/validateAndHashPassword';
 
 export const createUser = async (_, { data }, { prisma }, info) => {
-  const { password } = data;
-  if (password.length < 8) {
-    throw new Error('Password must be 8 chars long you idiot');
-  }
-  const hashedPassword = await bcrypt.hash(password, 10);
+  const password = validateAndHashPassword(data.password);
 
   const user = await prisma.mutation.createUser({
-    data: { ...data, password: hashedPassword }
+    data: { ...data, password }
   });
 
   return { user, token: generateToken(user) };
@@ -24,7 +21,12 @@ export const updateUser = (
   info
 ) => {
   const id = getUserId(request);
-  return prisma.mutation.updateUser({ data, where: { id } }, info);
+  const password = validateAndHashPassword(data.password);
+
+  return prisma.mutation.updateUser(
+    { data: { ...data, password }, where: { id } },
+    info
+  );
 };
 
 export const deleteUser = (_, args, { prisma, request }, info) => {

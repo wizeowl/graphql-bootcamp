@@ -1,89 +1,113 @@
 type Query {
-    me: User!
-    users(query: String): [User]
-    posts(query: String): [Post]
-    myPosts(query: String): [Post]
-    comments(query: String): [Comment]
-    post(id: ID!): Post!
+  me: User!
+  users(query: String): [User]
+  posts(query: String): [Post]
+  myPosts(query: String): [Post]
+  comments(query: String): [Comment]
+  post(id: ID!): Post!
 }
 
 type Mutation {
-    createUser(data: CreateUserInput!): AuthPayload!
-    updateUser(data: UpdateUserInput!): User!
-    deleteUser(id: ID!): User!
-    login(data: LoginInput!): AuthPayload!
+  createUser(data: CreateUserInput!): AuthPayload!
+  updateUser(data: UpdateUserInput!): User!
+  deleteUser(id: ID!): User!
+  login(data: LoginInput!): AuthPayload!
 
-    createPost(data: CreatePostInput!): Post!
-    updatePost(id: ID!, data: UpdatePostInput!): Post!
-    deletePost(id: ID!): Post!
+  createPost(data: CreatePostInput!): Post!
+  updatePost(id: ID!, data: UpdatePostInput!): Post!
+  deletePost(id: ID!): Post!
 
-    createComment(data: CreateCommentInput!): Comment!
-    updateComment(id: ID!, data: UpdateCommentInput!): Comment!
-    deleteComment(id: ID!): Comment!
+  createComment(data: CreateCommentInput!): Comment!
+  updateComment(id: ID!, data: UpdateCommentInput!): Comment!
+  deleteComment(id: ID!): Comment!
 }
 
 type Subscription {
-    comment(postId: ID!): CommentSubscriptionPayload!
-    post: PostSubscriptionPayload!
-    myPosts: PostSubscriptionPayload!
+  comment(postId: ID!): CommentSubscriptionPayload!
+  post: PostSubscriptionPayload!
+  myPosts: PostSubscriptionPayload!
 }
 
 type AuthPayload {
-    user: User!
-    token: String!
+  user: User!
+  token: String!
 }
 
-input CreateUserInput { name: String!, email: String!, password: String! }
+input CreateUserInput {
+  name: String!
+  email: String!
+  password: String!
+}
 
-input UpdateUserInput { name: String, email: String }
+input UpdateUserInput {
+  name: String
+  email: String
+  password: String
+}
 
-input LoginInput { password: String!, email: String! }
+input LoginInput {
+  password: String!
+  email: String!
+}
 
-input CreatePostInput { title: String!, body: String, published: Boolean }
+input CreatePostInput {
+  title: String!
+  body: String
+  published: Boolean
+}
 
-input UpdatePostInput { title: String, body: String, published: Boolean }
+input UpdatePostInput {
+  title: String
+  body: String
+  published: Boolean
+}
 
-input CreateCommentInput { text: String!, post: ID! }
+input CreateCommentInput {
+  text: String!
+  post: ID!
+}
 
-input UpdateCommentInput { text: String }
+input UpdateCommentInput {
+  text: String
+}
 
 type User {
-    id: ID!
-    name: String!
-    email: String
-    password: String!
-    posts: [Post!]!
-    comments: [Comment!]!
+  id: ID!
+  name: String!
+  email: String
+  password: String!
+  posts: [Post!]!
+  comments: [Comment!]!
 }
 
 type Comment {
-    id: ID!
-    text: String!
-    post: Post!
-    author: User!
+  id: ID!
+  text: String!
+  post: Post!
+  author: User!
 }
 
 type Post {
-    id: ID!
-    title: String!
-    body: String!
-    published: Boolean!
-    author: User!
-    comments: [Comment!]!
+  id: ID!
+  title: String!
+  body: String!
+  published: Boolean!
+  author: User!
+  comments: [Comment!]!
 }
 
 enum MutationType {
-    CREATED
-    UPDATED
-    DELETED
+  CREATED
+  UPDATED
+  DELETED
 }
 
 type PostSubscriptionPayload {
-    node: Post
-    mutation: MutationType!
+  node: Post
+  mutation: MutationType!
 }
 
 type CommentSubscriptionPayload {
-    node: Comment
-    mutation: MutationType!
+  node: Comment
+  mutation: MutationType!
 }
