@@ -6,12 +6,17 @@ export const createPost = (parent, { data: { title, body, published } }, { prism
   return prisma.mutation.createPost({ data }, info);
 };
 
-export const updatePost = async (_, { id, data }, { prisma, request }, info) => {
+export const updatePost = async (parent, { id, data }, { prisma, request }, info) => {
   const userId = getUserId(request);
-  const postExists = await prisma.exists.Post({ id, author: { id: userId } });
 
+  const postExists = await prisma.exists.Post({ id, author: { id: userId } });
   if (!postExists) {
     throw new Error('Post not found');
+  }
+
+  const isPublished = await prisma.exists.Post({ id, published: true });
+  if (isPublished && !data.published) {
+    await prisma.mutation.deleteManyComments({ where: { post: { id: parent.id } } });
   }
 
   return prisma.mutation.updatePost({ data, where: { id } }, info);

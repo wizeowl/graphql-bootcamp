@@ -14,7 +14,7 @@ export const Query = {
   },
   users(parent, { query }, { prisma }, info) {
     const where = query && {
-      where: { OR: [{ name_contains: query }, { email_contains: query }] }
+      where: { OR: [{ name_contains: query }] }
     };
     const opArgs = { ...(where || {}) };
     return prisma.query.users(opArgs, info);
