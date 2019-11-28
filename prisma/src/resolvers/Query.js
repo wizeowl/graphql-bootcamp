@@ -1,5 +1,12 @@
 import { getUserId } from "../utils";
 
+const buildQuery = query => (query && {
+  OR: [
+    { title_contains: query },
+    { body_contains: query }
+  ]
+}) || {};
+
 export const Query = {
   me(_, args, { prisma, request }, info) {
     const id = getUserId(request);
@@ -12,16 +19,21 @@ export const Query = {
     const opArgs = { ...(where || {}) };
     return prisma.query.users(opArgs, info);
   },
+  myPosts(_, { query }, { prisma, request }, info) {
+    const id = getUserId(request);
+
+    const opArgs = {
+      where: { author: { id }, ...(buildQuery(query)) }
+    };
+
+    return prisma.query.posts(opArgs, info);
+  },
   posts(parent, { query }, { prisma }, info) {
-    const where = query && {
+    const opArgs = {
       where: {
-        OR: [
-          { title_contains: query },
-          { body_contains: query }
-        ]
+        published: true, ...(buildQuery(query))
       }
     };
-    const opArgs = { ...(where || {}) };
     return prisma.query.posts(opArgs, info);
   },
   async post(parent, { id }, { prisma, request }, info) {
