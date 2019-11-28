@@ -1,12 +1,16 @@
 import jwt from 'jsonwebtoken';
 import { SECRET } from "./resolvers/Mutation/user.mutations";
 
-export const getUserId = ({ request: { headers: { authorization } } }, requireAuth = true) => {
-  if (!authorization && !requireAuth) {
+export const getUserId = ({ request, connection }, requireAuth = true) => {
+  const authToken = request
+    ? request.headers.authorization
+    : connection.context.Authorization;
+
+  if (!authToken && !requireAuth) {
     return null;
   }
 
-  if (!authorization) {
+  if (!authToken) {
     throw new Error('Authorization required');
   }
 
