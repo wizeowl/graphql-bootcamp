@@ -11,24 +11,38 @@ export const Query = {
     const id = getUserId(request);
     return prisma.query.user({ where: { id } });
   },
-  users(parent, { query }, { prisma }, info) {
+  users(parent, { query, first, skip, after }, { prisma }, info) {
     const where = query && {
+      first,
+      skip,
+      after,
       where: { OR: [{ name_contains: query }] }
     };
     const opArgs = { ...(where || {}) };
     return prisma.query.users(opArgs, info);
   },
-  myPosts(_, { query }, { prisma, request }, info) {
+  myPosts(
+    _,
+    { query, first, skip, after },
+    { prisma, request },
+    info
+  ) {
     const id = getUserId(request);
 
     const opArgs = {
+      first,
+      skip,
+      after,
       where: { author: { id }, ...buildQuery(query) }
     };
 
     return prisma.query.posts(opArgs, info);
   },
-  posts(parent, { query }, { prisma }, info) {
+  posts(parent, { query, first, skip, after }, { prisma }, info) {
     const opArgs = {
+      first,
+      skip,
+      after,
       where: {
         published: true,
         ...buildQuery(query)
@@ -52,8 +66,11 @@ export const Query = {
 
     return post;
   },
-  comments(parent, { query }, { prisma }, info) {
+  comments(parent, { query, first, skip, after }, { prisma }, info) {
     const where = query && {
+      first,
+      skip,
+      after,
       where: { text_contains: query }
     };
     const opArgs = { ...(where || {}) };

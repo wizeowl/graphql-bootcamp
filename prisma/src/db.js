@@ -1,4 +1,4 @@
-import { seedComments, seedPosts, seedUsers } from "./data/seeds";
+import { seedComments, seedPosts, seedUsers } from './data/seeds';
 
 const users = seedUsers(20);
 

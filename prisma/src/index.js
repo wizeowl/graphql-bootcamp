@@ -1,8 +1,8 @@
 import { GraphQLServer } from 'graphql-yoga';
 
 import db from './db';
-import { prisma } from "./prisma";
-import { fragmentReplacements, resolvers } from "./resolvers";
+import { prisma } from './prisma';
+import { fragmentReplacements, resolvers } from './resolvers';
 
 const server = new GraphQLServer({
   resolvers,
@@ -14,5 +14,5 @@ const server = new GraphQLServer({
 });
 
 server.start(() => {
-  console.log("server up");
+  console.log('server up');
 });

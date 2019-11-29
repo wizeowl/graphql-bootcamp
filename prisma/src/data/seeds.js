@@ -9,11 +9,11 @@ const rand = n => Math.floor(Math.random() * n);
 const pickRand = coll => coll[rand(coll.length)];
 const coinFlip = () => Math.random() > 0.5;
 
-export const seedUsers = length =>
+export const seedUsers = (length, password) =>
   range(length).map(() => ({
+    password,
     name: name(),
-    email: faker.internet.email(),
-    age: age()
+    email: faker.internet.email().toLowerCase()
   }));
 
 export const seedPosts = (length, users) =>
@@ -21,12 +21,12 @@ export const seedPosts = (length, users) =>
     title: faker.lorem.sentence(),
     body: faker.lorem.paragraphs(),
     published: coinFlip(),
-    author: pickRand(users).id
+    author: { connect: { id: pickRand(users).id } }
   }));
 
 export const seedComments = (length, users, posts) =>
   range(length).map(() => ({
     text: faker.lorem.sentence(),
-    post: pickRand(posts).id,
-    author: pickRand(users).id
+    post: { connect: { id: pickRand(posts).id } },
+    author: { connect: { id: pickRand(users).id } }
   }));

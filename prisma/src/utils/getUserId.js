@@ -1,7 +1,10 @@
 import jwt from 'jsonwebtoken';
-import { SECRET } from "./generateToken";
+import { SECRET } from './generateToken';
 
-export const getUserId = ({ request, connection }, requireAuth = true) => {
+export const getUserId = (
+  { request, connection },
+  requireAuth = true
+) => {
   const authToken = request
     ? request.headers.authorization
     : connection.context.Authorization;

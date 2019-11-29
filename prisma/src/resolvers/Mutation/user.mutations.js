@@ -4,7 +4,12 @@ import { generateToken } from '../../utils/generateToken';
 import { getUserId } from '../../utils/getUserId';
 import { validateAndHashPassword } from '../../utils/validateAndHashPassword';
 
-export const createUser = async (_, { data }, { prisma }, info) => {
+export const createUser = async (
+  parent,
+  { data },
+  { prisma },
+  info
+) => {
   const password = validateAndHashPassword(data.password);
 
   const user = await prisma.mutation.createUser({
