@@ -11,19 +11,21 @@ export const Query = {
     const id = getUserId(request);
     return prisma.query.user({ where: { id } });
   },
-  users(parent, { query, first, skip, after }, { prisma }, info) {
+  users(
+    parent,
+    { query, first, skip, after, orderBy },
+    { prisma },
+    info
+  ) {
     const where = query && {
-      first,
-      skip,
-      after,
       where: { OR: [{ name_contains: query }] }
     };
-    const opArgs = { ...(where || {}) };
+    const opArgs = { first, skip, after, orderBy, ...(where || {}) };
     return prisma.query.users(opArgs, info);
   },
   myPosts(
-    _,
-    { query, first, skip, after },
+    parent,
+    { query, first, skip, after, orderBy },
     { prisma, request },
     info
   ) {
@@ -33,16 +35,23 @@ export const Query = {
       first,
       skip,
       after,
+      orderBy,
       where: { author: { id }, ...buildQuery(query) }
     };
 
     return prisma.query.posts(opArgs, info);
   },
-  posts(parent, { query, first, skip, after }, { prisma }, info) {
+  posts(
+    parent,
+    { query, first, skip, after, orderBy },
+    { prisma },
+    info
+  ) {
     const opArgs = {
       first,
       skip,
       after,
+      orderBy,
       where: {
         published: true,
         ...buildQuery(query)
@@ -50,7 +59,7 @@ export const Query = {
     };
     return prisma.query.posts(opArgs, info);
   },
-  async post(parent, { id }, { prisma, request }, info) {
+  async post(parent, { id }, { prisma, request }) {
     const userId = getUserId(request, false);
 
     const [post] = await prisma.query.posts({
@@ -66,14 +75,16 @@ export const Query = {
 
     return post;
   },
-  comments(parent, { query, first, skip, after }, { prisma }, info) {
+  comments(
+    parent,
+    { query, first, skip, after, orderBy },
+    { prisma },
+    info
+  ) {
     const where = query && {
-      first,
-      skip,
-      after,
       where: { text_contains: query }
     };
-    const opArgs = { ...(where || {}) };
+    const opArgs = { first, skip, after, orderBy, ...(where || {}) };
     return prisma.query.comments(opArgs, info);
   }
 };
