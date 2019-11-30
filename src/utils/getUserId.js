@@ -1,5 +1,4 @@
 import jwt from 'jsonwebtoken';
-import { SECRET } from './generateToken';
 
 export const getUserId = (
   { request, connection },
@@ -18,7 +17,7 @@ export const getUserId = (
   }
 
   const token = authToken.replace('Bearer ', '');
-  const { userId } = jwt.verify(token, SECRET);
+  const { userId } = jwt.verify(token, process.env.JWT_SECRET);
 
   return userId;
 };
