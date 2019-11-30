@@ -10,7 +10,7 @@ export const createUser = async (
   { prisma },
   info
 ) => {
-  const password = validateAndHashPassword(data.password);
+  const password = await validateAndHashPassword(data.password);
 
   const user = await prisma.mutation.createUser({
     data: { ...data, password }
