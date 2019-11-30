@@ -1,6 +1,6 @@
-import { validateAndHashPassword } from '../utils/validateAndHashPassword';
+import { validateAndHashPassword } from '../src/utils/validateAndHashPassword';
 import { seedComments, seedPosts, seedUsers } from './seeds';
-import { prisma } from '../prisma';
+import { prisma } from '../src/prisma';
 
 const createTestData = async () => {
   const start = new Date();
