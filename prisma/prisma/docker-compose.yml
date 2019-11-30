@@ -3,15 +3,16 @@ services:
   prisma:
     image: prismagraphql/prisma:1.12
     restart: always
+    network_mode: 'host'
     ports:
-    - "4466:4466"
+      - '4466:4466'
     environment:
       PRISMA_CONFIG: |
         port: 4466
         databases:
           default:
             connector: postgres
-            host: host.docker.internal
+            host: localhost
             port: '5432'
             database: bootcamp
             user: postgres

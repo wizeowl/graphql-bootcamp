@@ -1,4 +1,5 @@
 basics/node_modules
 prisma/node_modules
+prisma/dist
 reviews/node_modules
 .idea

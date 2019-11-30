@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "seed": "babel-node src/data/createTestData.js",
-    "start": "",
+    "start": "env-cmd ./config/prod.env node dist/index.js",
+    "heroku-postbuild": "babel src --out-dir dist --copy-files",
     "dev": "env-cmd config/dev.env nodemon src/index.js --exec babel-node --ext js,graphql",
     "test": "echo \"Error: no test specified\" && exit 1",
     "get-schema": "graphql get-schema -p prisma",
@@ -20,6 +21,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@babel/polyfill": "^7.7.0",
     "babel-cli": "^6.26.0",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.7.0",

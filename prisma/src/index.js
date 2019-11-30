@@ -1,3 +1,4 @@
+import '@babel/polyfill/noConflict';
 import { GraphQLServer } from 'graphql-yoga';
 
 import db from './db';
