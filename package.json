@@ -10,6 +10,7 @@
     "dev": "env-cmd config/dev.env nodemon src/index.js --exec babel-node --ext js,graphql",
     "test": "echo \"Error: no test specified\" && exit 1",
     "get-schema": "graphql get-schema -p prisma",
+    "local-deploy": "env-cmd config/dev.env prisma deploy",
     "prt": "pretty-quick --staged"
   },
   "husky": {
@@ -26,22 +27,21 @@
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "bcryptjs": "^2.4.3",
-    "eslint": "^6.7.0",
-    "eslint-plugin-react": "^7.16.0",
-    "faker": "^4.1.0",
-    "graphql-cli": "^2.16.4",
     "graphql-yoga": "^1.16.7",
     "jsonwebtoken": "^8.3.0",
-    "nodemon": "^2.0.0",
     "prisma-binding": "^2.1.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^8.2.0",
     "@commitlint/config-conventional": "^8.2.0",
     "env-cmd": "^8.0.2",
+    "eslint": "^6.7.1",
     "eslint-config-prettier": "^6.7.0",
     "eslint-plugin-prettier": "^3.1.1",
+    "faker": "^4.1.0",
+    "graphql-cli": "^2.17.0",
     "husky": "^3.1.0",
+    "nodemon": "^2.0.1",
     "prettier": "^1.19.1",
     "pretty-quick": "^2.0.1"
   }
