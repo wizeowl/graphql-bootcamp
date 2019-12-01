@@ -29,7 +29,23 @@ describe('User', () => {
     }
   `;
 
-  it('Should create a User', async () => {
+  const meQuery = gql`
+    query {
+      me {
+        id
+        name
+        email
+        posts {
+          id
+          title
+          body
+          published
+        }
+      }
+    }
+  `;
+
+  it('should create a User', async () => {
     const name = 'Gabi Gabino';
     const email = 'gabi2@gmail.com';
     const password = 'azertyui';
@@ -56,7 +72,7 @@ describe('User', () => {
     expect(userExists).toBeTruthy();
   });
 
-  it('Should expose public author profiles', async () => {
+  it('should expose public author profiles', async () => {
     const query = gql`
       query {
         users {
@@ -76,7 +92,7 @@ describe('User', () => {
     expect(user.email).toBeFalsy();
   });
 
-  it('Should fail to login with bad credentials', async () => {
+  it('should fail to login with bad credentials', async () => {
     const login = (email, password) => gql`
       mutation {
         login(
@@ -104,7 +120,7 @@ describe('User', () => {
     ).rejects.toThrow();
   });
 
-  it('Should fail to create User with a short password', async () => {
+  it('should fail to create User with a short password', async () => {
     await expect(
       client.mutate({
         mutation: createUser(
@@ -116,30 +132,18 @@ describe('User', () => {
     ).rejects.toThrow();
   });
 
-  it('Should get user profile', async () => {
-    const authenticatedClient = getClient(userOne.jwt);
+  it('should fail to get user profile without Authentication', async () => {
+    await expect(client.query({ query: meQuery })).rejects.toThrow();
+  });
 
-    const query = gql`
-      query {
-        me {
-          id
-          name
-          email
-          posts {
-            id
-            title
-            body
-            published
-          }
-        }
-      }
-    `;
+  it('should get user profile only if using authentication', async () => {
+    const authenticatedClient = getClient(userOne.jwt);
 
     const {
       data: {
         me: { id, name, email, posts }
       }
-    } = await authenticatedClient.query({ query });
+    } = await authenticatedClient.query({ query: meQuery });
     expect(id).toEqual(userOne.user.id);
     expect(name).toEqual(userOne.user.name);
     expect(email).toEqual(userOne.user.email);
