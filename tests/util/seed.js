@@ -1,24 +1,27 @@
-import ApolloBoost from 'apollo-boost';
+import * as jwt from 'jsonwebtoken';
 import { validateAndHashPassword } from '../../src/utils/validateAndHashPassword';
 import { prisma } from '../../src/prisma';
-
-export const client = new ApolloBoost({
-  uri: `http://localhost:${process.env.PORT}`
-});
 
 export const dummyUser = {
   name: 'Al Pacino',
   email: 'amigo@example.com'
 };
 
+export const userOne = { input: dummyUser, user: null, jwt: null };
+
 export const seed = async () => {
   const password = await validateAndHashPassword('azertyui');
 
   await prisma.mutation.deleteManyPosts();
   await prisma.mutation.deleteManyUsers();
-  await prisma.mutation.createUser({
+
+  userOne.user = await prisma.mutation.createUser({
     data: { ...dummyUser, password }
   });
+  userOne.jwt = jwt.sign(
+    { userId: userOne.user.id },
+    process.env.JWT_SECRET
+  );
 
   await prisma.mutation.createPost({
     data: {
