@@ -15,7 +15,7 @@ export const userOne = { input: dummyUser1, user: null, jwt: null };
 export const userTwo = { input: dummyUser2, user: null, jwt: null };
 export const testPosts = { posts: [] };
 
-export const seed = async () => {
+export const seed = async (debug = false) => {
   const password = await validateAndHashPassword('azertyui');
 
   await prisma.mutation.deleteManyPosts();
@@ -55,4 +55,10 @@ export const seed = async () => {
   });
 
   testPosts.posts = [post1, post2];
+
+  if (debug) {
+    console.log(userOne);
+    console.log(userTwo);
+    console.log(testPosts);
+  }
 };

@@ -43,6 +43,14 @@ describe('Post', () => {
     }
   `;
 
+  const deletePostMutation = postId => gql`
+    mutation {
+      deletePost(id: "${postId}") {
+        id
+      }
+    }
+  `;
+
   it('Should return public posts', async () => {
     const query = gql`
       query {
@@ -150,6 +158,36 @@ describe('Post', () => {
       client.mutate({
         mutation: createPostMutation('Title', 'Body', true)
       })
+    ).rejects.toThrow();
+  });
+
+  it.only('should delete own post', async () => {
+    const authClient = getClient(userOne.jwt);
+    const postId = testPosts.posts[0].id;
+
+    const {
+      data: { deletePost }
+    } = await authClient.mutate({
+      mutation: deletePostMutation(postId)
+    });
+
+    const exists = await prisma.exists.Post({ id: postId });
+
+    expect(exists).toBe(false);
+  });
+
+  it('should fail to delete post by another user', async () => {
+    const authClient = getClient(userTwo.jwt);
+    const postId = testPosts.posts[0].id;
+    await expect(
+      authClient.mutate({ mutation: deletePostMutation(postId) })
+    ).rejects.toThrow();
+  });
+
+  it('should fail to delete post without auth', async () => {
+    const postId = testPosts.posts[0].id;
+    await expect(
+      client.mutate({ mutation: deletePostMutation(postId) })
     ).rejects.toThrow();
   });
 });
