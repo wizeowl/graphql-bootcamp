@@ -25,9 +25,9 @@ describe('Post', () => {
     }
   `;
 
-  const updatePostMutation = (postId, body) => gql`
-    mutation {
-      updatePost(id: "${postId}", data: { body: "${body}" }) {
+  const updatePostMutation = gql`
+    mutation($id: ID!, $data: UpdatePostInput!) {
+      updatePost(id: $id, data: $data) {
         id
         title
         body
@@ -35,17 +35,23 @@ describe('Post', () => {
     }
   `;
 
-  const createPostMutation = (title, body, published) => gql`
-    mutation {
-      createPost(data: {title: "${title}" body: "${body}" published: ${published}}) {
-        id title body published author { id }
+  const createPostMutation = gql`
+    mutation($data: CreatePostInput!) {
+      createPost(data: $data) {
+        id
+        title
+        body
+        published
+        author {
+          id
+        }
       }
     }
   `;
 
-  const deletePostMutation = postId => gql`
-    mutation {
-      deletePost(id: "${postId}") {
+  const deletePostMutation = gql`
+    mutation($id: ID!) {
+      deletePost(id: $id) {
         id
       }
     }
@@ -97,78 +103,106 @@ describe('Post', () => {
 
   it('should update own post', async () => {
     const authClient = getClient(userOne.jwt);
-    const postId = testPosts.posts[0].id;
-    const body = 'My new booody';
+    const variables = {
+      data: { body: 'My new booody' },
+      id: testPosts.posts[0].id
+    };
 
     const {
       data: { updatePost }
     } = await authClient.mutate({
-      mutation: updatePostMutation(postId, body)
+      mutation: updatePostMutation,
+      variables
     });
 
     const exists = await prisma.exists.Post({
-      id: postId,
-      body,
+      id: variables.id,
+      body: variables.data.body,
       author: { id: userOne.user.id }
     });
 
     expect(exists).toBe(true);
-    expect(updatePost.id).toEqual(postId);
-    expect(updatePost.body).toEqual(body);
+    expect(updatePost.id).toEqual(variables.id);
+    expect(updatePost.body).toEqual(variables.data.body);
   });
 
   it('should not update other people posts', async () => {
     const authClient = getClient(userTwo.jwt);
-    const postId = testPosts.posts[0].id;
     await expect(
-      authClient.mutate({ mutation: updatePostMutation(postId, '') })
+      authClient.mutate({
+        mutation: updatePostMutation,
+        variables: {
+          id: testPosts.posts[0].id,
+          data: { body: 'Body' }
+        }
+      })
     ).rejects.toThrow();
   });
 
   it('should fail to update post without auth', async () => {
-    const postId = testPosts.posts[0].id;
     await expect(
-      client.mutate({ mutation: updatePostMutation(postId, '') })
+      client.mutate({
+        mutation: updatePostMutation,
+        variables: {
+          id: testPosts.posts[0].id,
+          data: { body: 'Body' }
+        }
+      })
     ).rejects.toThrow();
   });
 
   it('should create a post', async () => {
     const authClient = getClient(userTwo.jwt);
-    const body = `Body ${new Date()}`;
-    const title = `Title ${new Date()}`;
+    const variables = {
+      data: {
+        body: `Body ${new Date()}`,
+        title: `Title ${new Date()}`,
+        published: true
+      }
+    };
     const {
       data: { createPost }
     } = await authClient.mutate({
-      mutation: createPostMutation(title, body, true)
+      mutation: createPostMutation,
+      variables
     });
 
     const exists = await prisma.exists.Post({
-      body,
-      title,
+      body: variables.data.body,
+      title: variables.data.title,
       author: { id: userTwo.user.id }
     });
 
     expect(exists).toBe(true);
-    expect(createPost.title).toEqual(title);
-    expect(createPost.body).toEqual(body);
+    expect(createPost.title).toEqual(variables.data.title);
+    expect(createPost.body).toEqual(variables.data.body);
   });
 
   it('should fail to create a post without auth', async () => {
+    const variables = {
+      data: {
+        body: `Body ${new Date()}`,
+        title: `Title ${new Date()}`,
+        published: true
+      }
+    };
     await expect(
       client.mutate({
-        mutation: createPostMutation('Title', 'Body', true)
+        mutation: createPostMutation,
+        variables
       })
     ).rejects.toThrow();
   });
 
-  it.only('should delete own post', async () => {
+  it('should delete own post', async () => {
     const authClient = getClient(userOne.jwt);
     const postId = testPosts.posts[0].id;
 
     const {
       data: { deletePost }
     } = await authClient.mutate({
-      mutation: deletePostMutation(postId)
+      mutation: deletePostMutation,
+      variables: { id: testPosts.posts[0].id }
     });
 
     const exists = await prisma.exists.Post({ id: postId });
@@ -178,16 +212,21 @@ describe('Post', () => {
 
   it('should fail to delete post by another user', async () => {
     const authClient = getClient(userTwo.jwt);
-    const postId = testPosts.posts[0].id;
     await expect(
-      authClient.mutate({ mutation: deletePostMutation(postId) })
+      authClient.mutate({
+        mutation: deletePostMutation,
+        variables: { id: testPosts.posts[0].id }
+      })
     ).rejects.toThrow();
   });
 
   it('should fail to delete post without auth', async () => {
     const postId = testPosts.posts[0].id;
     await expect(
-      client.mutate({ mutation: deletePostMutation(postId) })
+      client.mutate({
+        mutation: deletePostMutation,
+        variables: { id: testPosts.posts[0].id }
+      })
     ).rejects.toThrow();
   });
 });

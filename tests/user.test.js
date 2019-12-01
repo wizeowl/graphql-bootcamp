@@ -10,15 +10,9 @@ const client = getClient();
 describe('User', () => {
   beforeEach(seed);
 
-  const createUser = (name, email, password) => gql`
-    mutation {
-      createUser(
-        data: {
-          email: "${email}"
-          name: "${name}"
-          password: "${password}"
-        }
-      ) {
+  const createUser = gql`
+    mutation($data: CreateUserInput!) {
+      createUser(data: $data) {
         token
         user {
           name
@@ -46,30 +40,50 @@ describe('User', () => {
   `;
 
   it('should create a User', async () => {
-    const name = 'Gabi Gabino';
-    const email = 'gabi2@gmail.com';
-    const password = 'azertyui';
+    const variables = {
+      data: {
+        name: 'Gabi Gabino',
+        email: 'gabi2@gmail.com',
+        password: 'azertyui'
+      }
+    };
 
     const {
       data: {
         createUser: { token, user }
       }
     } = await client.mutate({
-      mutation: createUser(name, email, password)
+      mutation: createUser,
+      variables
     });
 
     expect(token).toBeTruthy();
     expect(user.name).toBeTruthy();
-    expect(user.name).toEqual(name);
     expect(user.id).toBeTruthy();
 
     const userExists = await prisma.exists.User({
-      name,
-      email,
+      name: variables.name,
+      email: variables.email,
       id: user.id
     });
 
     expect(userExists).toBeTruthy();
+  });
+
+  it('should fail to create User with a short password', async () => {
+    const variables = {
+      data: {
+        name: 'Mona Lisa',
+        email: 'monalisa@example.com',
+        password: 'pazerty'
+      }
+    };
+    await expect(
+      client.mutate({
+        mutation: createUser,
+        variables
+      })
+    ).rejects.toThrow();
   });
 
   it('should expose public author profiles', async () => {
@@ -94,11 +108,9 @@ describe('User', () => {
   });
 
   it('should fail to login with bad credentials', async () => {
-    const login = (email, password) => gql`
-      mutation {
-        login(
-          data: { email: "${email}", password: "${password}" }
-        ) {
+    const login = gql`
+      mutation($data: LoginInput) {
+        login(data: $data) {
           token
           user {
             id
@@ -110,25 +122,25 @@ describe('User', () => {
 
     await expect(
       client.mutate({
-        mutation: login('anybody@example.com', 'azertyui')
+        mutation: login,
+        variables: {
+          data: {
+            email: 'anybody@example.com',
+            password: 'azertyui'
+          }
+        }
       })
     ).rejects.toThrow();
 
     await expect(
       client.mutate({
-        mutation: login('amigo@example.com', 'qsdfghjk')
-      })
-    ).rejects.toThrow();
-  });
-
-  it('should fail to create User with a short password', async () => {
-    await expect(
-      client.mutate({
-        mutation: createUser(
-          'Mona Lisa',
-          'monalisa@example.com',
-          'pazerty'
-        )
+        mutation: login,
+        variables: {
+          data: {
+            email: 'amigo@example.com',
+            password: 'qsdfghjk'
+          }
+        }
       })
     ).rejects.toThrow();
   });
