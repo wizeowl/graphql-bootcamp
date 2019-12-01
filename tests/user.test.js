@@ -7,34 +7,37 @@ import { client, seed } from './config/testSetup';
 describe('User', () => {
   beforeEach(seed);
 
+  const createUser = (name, email, password) => gql`
+    mutation {
+      createUser(
+        data: {
+          email: "${email}"
+          name: "${name}"
+          password: "${password}"
+        }
+      ) {
+        token
+        user {
+          name
+          id
+          email
+        }
+      }
+    }
+  `;
+
   it('Should create a User', async () => {
     const name = 'Gabi Gabino';
     const email = 'gabi2@gmail.com';
     const password = 'azertyui';
-    const createUser = gql`
-      mutation {
-        createUser(
-          data: {
-            email: "${email}"
-            name: "${name}"
-            password: "${password}"
-          }
-        ) {
-          token
-          user {
-            name
-            id
-            email
-          }
-        }
-      }
-    `;
 
     const {
       data: {
         createUser: { token, user }
       }
-    } = await client.mutate({ mutation: createUser });
+    } = await client.mutate({
+      mutation: createUser(name, email, password)
+    });
 
     expect(token).toBeTruthy();
     expect(user.name).toBeTruthy();
@@ -68,6 +71,46 @@ describe('User', () => {
     expect(users.length).toEqual(1);
     const [user] = users;
     expect(user.email).toBeFalsy();
+  });
+
+  it('Should fail to login with bad credentials', async () => {
+    const login = (email, password) => gql`
+      mutation {
+        login(
+          data: { email: "${email}", password: "${password}" }
+        ) {
+          token
+          user {
+            id
+            name
+          }
+        }
+      }
+    `;
+
+    await expect(
+      client.mutate({
+        mutation: login('anybody@example.com', 'azertyui')
+      })
+    ).rejects.toThrow();
+
+    await expect(
+      client.mutate({
+        mutation: login('amigo@example.com', 'qsdfghjk')
+      })
+    ).rejects.toThrow();
+  });
+
+  it('Should fail to create User with a short password', async () => {
+    await expect(
+      client.mutate({
+        mutation: createUser(
+          'Mona Lisa',
+          'monalisa@example.com',
+          'pazerty'
+        )
+      })
+    ).rejects.toThrow();
   });
 
   it('Should return public posts', async () => {
