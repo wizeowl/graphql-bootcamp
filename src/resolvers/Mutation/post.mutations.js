@@ -66,5 +66,5 @@ export const deletePost = async (
     throw new Error('Post not found');
   }
 
-  return prisma.mutation.deleteUser({ where: { id } }, info);
+  return prisma.mutation.deletePost({ where: { id } }, info);
 };
