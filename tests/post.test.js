@@ -1,7 +1,10 @@
 import 'cross-fetch/polyfill';
 import { gql } from 'apollo-boost';
+import { getClient } from './util/getClient';
 
-import { client, seed } from './seed/seed';
+import { seed } from './util/seed';
+
+const client = getClient();
 
 describe('Post', () => {
   beforeEach(seed);

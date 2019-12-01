@@ -2,7 +2,10 @@ import 'cross-fetch/polyfill';
 import { gql } from 'apollo-boost';
 
 import { prisma } from '../src/prisma';
-import { client, seed } from './seed/seed';
+import { getClient } from './util/getClient';
+import { seed, userOne } from './util/seed';
+
+const client = getClient();
 
 describe('User', () => {
   beforeEach(seed);
@@ -111,5 +114,35 @@ describe('User', () => {
         )
       })
     ).rejects.toThrow();
+  });
+
+  it('Should get user profile', async () => {
+    const authenticatedClient = getClient(userOne.jwt);
+
+    const query = gql`
+      query {
+        me {
+          id
+          name
+          email
+          posts {
+            id
+            title
+            body
+            published
+          }
+        }
+      }
+    `;
+
+    const {
+      data: {
+        me: { id, name, email, posts }
+      }
+    } = await authenticatedClient.query({ query });
+    expect(id).toEqual(userOne.user.id);
+    expect(name).toEqual(userOne.user.name);
+    expect(email).toEqual(userOne.user.email);
+    expect(Array.isArray(posts)).toEqual(true);
   });
 });
