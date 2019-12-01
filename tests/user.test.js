@@ -86,10 +86,11 @@ describe('User', () => {
     const {
       data: { users }
     } = await client.query({ query });
-    expect(users).toBeTruthy();
-    expect(users.length).toEqual(1);
-    const [user] = users;
-    expect(user.email).toBeFalsy();
+
+    users.forEach(user => {
+      expect(user.name).toBeTruthy();
+      expect(user.email).toBeFalsy();
+    });
   });
 
   it('should fail to login with bad credentials', async () => {
