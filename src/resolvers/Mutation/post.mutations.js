@@ -36,9 +36,14 @@ export const updatePost = async (
     id,
     published: true
   });
-  if (isPublished && !data.published) {
+
+  if (
+    isPublished &&
+    typeof data.published !== 'undefined' &&
+    !data.published
+  ) {
     await prisma.mutation.deleteManyComments({
-      where: { post: { id: parent.id } }
+      where: { post: { id } }
     });
   }
 
