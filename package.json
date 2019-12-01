@@ -8,7 +8,7 @@
     "start": "node dist/index.js",
     "heroku-postbuild": "babel src --out-dir dist --copy-files",
     "dev": "env-cmd config/dev.env nodemon src/index.js --exec babel-node --ext js,graphql",
-    "test": "env-cmd ./config/test.env jest",
+    "test": "env-cmd ./config/test.env jest --runInBand",
     "get-schema": "graphql get-schema -p prisma --dotenv config/dev.env",
     "local-deploy": "env-cmd config/dev.env prisma deploy",
     "prt": "pretty-quick --staged"
