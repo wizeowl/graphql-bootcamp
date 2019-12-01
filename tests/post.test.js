@@ -1,8 +1,9 @@
 import 'cross-fetch/polyfill';
 import { gql } from 'apollo-boost';
+import { prisma } from '../src/prisma';
 
 import { getClient } from './util/getClient';
-import { seed, userOne } from './util/seed';
+import { seed, testPosts, userOne, userTwo } from './util/seed';
 
 const client = getClient();
 
@@ -20,6 +21,16 @@ describe('Post', () => {
           id
           name
         }
+      }
+    }
+  `;
+
+  const updatePostQuery = (postId, body) => gql`
+    mutation {
+      updatePost(id: "${postId}", data: { body: "${body}" }) {
+        id
+        title
+        body
       }
     }
   `;
@@ -66,5 +77,42 @@ describe('Post', () => {
       expect(post.published).toBeDefined();
       expect(post.author.id).toEqual(userOne.user.id);
     });
+  });
+
+  it('should update own post', async () => {
+    const authClient = getClient(userOne.jwt);
+    const postId = testPosts.posts[0].id;
+    const body = 'My new booody';
+
+    const {
+      data: { updatePost }
+    } = await authClient.mutate({
+      mutation: updatePostQuery(postId, body)
+    });
+
+    const exists = await prisma.exists.Post({
+      id: postId,
+      body,
+      author: { id: userOne.user.id }
+    });
+
+    expect(exists).toBe(true);
+    expect(updatePost.id).toEqual(postId);
+    expect(updatePost.body).toEqual(body);
+  });
+
+  it('should not update other people posts', async () => {
+    const authClient = getClient(userTwo.jwt);
+    const postId = testPosts.posts[0].id;
+    await expect(
+      authClient.mutate({ mutation: updatePostQuery(postId, '') })
+    ).rejects.toThrow();
+  });
+
+  it('should fail to update post without auth', async () => {
+    const postId = testPosts.posts[0].id;
+    await expect(
+      client.mutate({ mutation: updatePostQuery(postId, '') })
+    ).rejects.toThrow();
   });
 });

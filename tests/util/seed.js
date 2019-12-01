@@ -13,6 +13,7 @@ export const dummyUser2 = {
 
 export const userOne = { input: dummyUser1, user: null, jwt: null };
 export const userTwo = { input: dummyUser2, user: null, jwt: null };
+export const testPosts = { posts: [] };
 
 export const seed = async () => {
   const password = await validateAndHashPassword('azertyui');
@@ -35,7 +36,7 @@ export const seed = async () => {
     process.env.JWT_SECRET
   );
 
-  await prisma.mutation.createPost({
+  const post1 = await prisma.mutation.createPost({
     data: {
       title: 'Post 1',
       body: 'Body 1',
@@ -44,7 +45,7 @@ export const seed = async () => {
     }
   });
 
-  await prisma.mutation.createPost({
+  const post2 = await prisma.mutation.createPost({
     data: {
       title: 'Post 2',
       body: 'Body 2',
@@ -52,4 +53,6 @@ export const seed = async () => {
       author: { connect: { email: dummyUser1.email } }
     }
   });
+
+  testPosts.posts = [post1, post2];
 };
