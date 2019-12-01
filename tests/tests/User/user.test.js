@@ -1,43 +1,15 @@
 import 'cross-fetch/polyfill';
-import { gql } from 'apollo-boost';
 
-import { prisma } from '../src/prisma';
-import { getClient } from './util/getClient';
-import { seed, userOne } from './util/seed';
+import { prisma } from '../../../src/prisma';
+import { getClient } from '../../util/getClient';
+import { seed, userOne } from '../../util/seed';
+import { createUser, loginMutation } from './mutations';
+import { meQuery, usersQuery } from './queries';
 
 const client = getClient();
 
 describe('User', () => {
   beforeEach(seed);
-
-  const createUser = gql`
-    mutation($data: CreateUserInput!) {
-      createUser(data: $data) {
-        token
-        user {
-          name
-          id
-          email
-        }
-      }
-    }
-  `;
-
-  const meQuery = gql`
-    query {
-      me {
-        id
-        name
-        email
-        posts {
-          id
-          title
-          body
-          published
-        }
-      }
-    }
-  `;
 
   it('should create a User', async () => {
     const variables = {
@@ -87,19 +59,9 @@ describe('User', () => {
   });
 
   it('should expose public author profiles', async () => {
-    const query = gql`
-      query {
-        users {
-          id
-          name
-          email
-        }
-      }
-    `;
-
     const {
       data: { users }
-    } = await client.query({ query });
+    } = await client.query({ query: usersQuery });
 
     users.forEach(user => {
       expect(user.name).toBeTruthy();
@@ -108,21 +70,9 @@ describe('User', () => {
   });
 
   it('should fail to login with bad credentials', async () => {
-    const login = gql`
-      mutation($data: LoginInput) {
-        login(data: $data) {
-          token
-          user {
-            id
-            name
-          }
-        }
-      }
-    `;
-
     await expect(
       client.mutate({
-        mutation: login,
+        mutation: loginMutation,
         variables: {
           data: {
             email: 'anybody@example.com',
@@ -134,7 +84,7 @@ describe('User', () => {
 
     await expect(
       client.mutate({
-        mutation: login,
+        mutation: loginMutation,
         variables: {
           data: {
             email: 'amigo@example.com',

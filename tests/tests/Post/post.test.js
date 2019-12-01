@@ -1,77 +1,24 @@
 import 'cross-fetch/polyfill';
-import { gql } from 'apollo-boost';
-import { prisma } from '../src/prisma';
+import { prisma } from '../../../src/prisma';
 
-import { getClient } from './util/getClient';
-import { seed, testPosts, userOne, userTwo } from './util/seed';
+import { getClient } from '../../util/getClient';
+import { seed, testPosts, userOne, userTwo } from '../../util/seed';
+import {
+  createPostMutation,
+  deletePostMutation,
+  updatePostMutation
+} from './mutations';
+import { myPostsQuery, postsQuery } from './queries';
 
 const client = getClient();
 
 describe('Post', () => {
   beforeEach(seed);
 
-  const myPostsQuery = gql`
-    query {
-      myPosts {
-        id
-        title
-        body
-        published
-        author {
-          id
-          name
-        }
-      }
-    }
-  `;
-
-  const updatePostMutation = gql`
-    mutation($id: ID!, $data: UpdatePostInput!) {
-      updatePost(id: $id, data: $data) {
-        id
-        title
-        body
-      }
-    }
-  `;
-
-  const createPostMutation = gql`
-    mutation($data: CreatePostInput!) {
-      createPost(data: $data) {
-        id
-        title
-        body
-        published
-        author {
-          id
-        }
-      }
-    }
-  `;
-
-  const deletePostMutation = gql`
-    mutation($id: ID!) {
-      deletePost(id: $id) {
-        id
-      }
-    }
-  `;
-
   it('Should return public posts', async () => {
-    const query = gql`
-      query {
-        posts {
-          id
-          title
-          body
-          published
-        }
-      }
-    `;
-
     const {
       data: { posts }
-    } = await client.query({ query });
+    } = await client.query({ postsQuery });
 
     expect(posts).toBeTruthy();
     expect(posts.length).toEqual(1);
