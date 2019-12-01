@@ -25,12 +25,20 @@ describe('Post', () => {
     }
   `;
 
-  const updatePostQuery = (postId, body) => gql`
+  const updatePostMutation = (postId, body) => gql`
     mutation {
       updatePost(id: "${postId}", data: { body: "${body}" }) {
         id
         title
         body
+      }
+    }
+  `;
+
+  const createPostMutation = (title, body, published) => gql`
+    mutation {
+      createPost(data: {title: "${title}" body: "${body}" published: ${published}}) {
+        id title body published author { id }
       }
     }
   `;
@@ -87,7 +95,7 @@ describe('Post', () => {
     const {
       data: { updatePost }
     } = await authClient.mutate({
-      mutation: updatePostQuery(postId, body)
+      mutation: updatePostMutation(postId, body)
     });
 
     const exists = await prisma.exists.Post({
@@ -105,14 +113,43 @@ describe('Post', () => {
     const authClient = getClient(userTwo.jwt);
     const postId = testPosts.posts[0].id;
     await expect(
-      authClient.mutate({ mutation: updatePostQuery(postId, '') })
+      authClient.mutate({ mutation: updatePostMutation(postId, '') })
     ).rejects.toThrow();
   });
 
   it('should fail to update post without auth', async () => {
     const postId = testPosts.posts[0].id;
     await expect(
-      client.mutate({ mutation: updatePostQuery(postId, '') })
+      client.mutate({ mutation: updatePostMutation(postId, '') })
+    ).rejects.toThrow();
+  });
+
+  it('should create a post', async () => {
+    const authClient = getClient(userTwo.jwt);
+    const body = `Body ${new Date()}`;
+    const title = `Title ${new Date()}`;
+    const {
+      data: { createPost }
+    } = await authClient.mutate({
+      mutation: createPostMutation(title, body, true)
+    });
+
+    const exists = await prisma.exists.Post({
+      body,
+      title,
+      author: { id: userTwo.user.id }
+    });
+
+    expect(exists).toBe(true);
+    expect(createPost.title).toEqual(title);
+    expect(createPost.body).toEqual(body);
+  });
+
+  it('should fail to create a post without auth', async () => {
+    await expect(
+      client.mutate({
+        mutation: createPostMutation('Title', 'Body', true)
+      })
     ).rejects.toThrow();
   });
 });
